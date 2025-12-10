@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="author" content="Fredynandus Takalamingan - SMA Negeri 2 Bitung">
+  <title>FisikaSmart — Kalkulator Fisika Interaktif</title>
+
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --accent: #1f7aec;
+      --muted: #666;
+      --shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+    }
+
+    body {
+      font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      margin: 0;
+      background: var(--bg);
+      color: #0b1420;
+    }
+
+    header {
+      text-align: center;
+      background: var(--accent);
+      color: white;
+      padding: 18px 12px;
+      box-shadow: 0 3px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 26px;
+    }
+
+    header p {
+      margin: 4px 0 0;
+      font-size: 15px;
+      opacity: 0.9;
+    }
+
+    main {
+      max-width: 900px;
+      margin: 24px auto;
+      padding: 16px;
+      display: grid;
+      gap: 20px;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: 14px;
+      padding: 24px;
+      box-shadow: var(--shadow);
+    }
+
+    h2 {
+      margin-top: 0;
+      color: var(--accent);
+    }
+
+    select, input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      margin-top: 8px;
+      font-size: 15px;
+    }
+
+    label {
+      font-weight: 600;
+      display: block;
+      margin-top: 10px;
+    }
+
+    button {
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 8px;
+      margin-top: 16px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 15px;
+      transition: background 0.25s;
+    }
+
+    button:hover {
+      background: #155fcf;
+    }
+
+    .result {
+      background: #eef3ff;
+      border-left: 4px solid var(--accent);
+      border-radius: 8px;
+      padding: 12px;
+      margin-top: 18px;
+      font-size: 16px;
+      font-weight: 600;
+      color: #10264f;
+    }
+
+    footer {
+      text-align: center;
+      padding: 16px;
+      color: var(--muted);
+      font-size: 13px;
+      border-top: 1px solid #ddd;
+      margin-top: 20px;
+      background: #f9fafc;
+    }
+
+    footer span {
+      display: block;
+      margin-top: 6px;
+      font-style: italic;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>⚙️ FisikaSmart</h1>
+    <p>Kalkulator Fisika Interaktif — SMA Negeri 2 Bitung</p>
+  </header>
+
+  <main>
+    <div class="card">
+      <h2>Pilih Jenis Kalkulator</h2>
+      <select id="calcType">
+        <option value="basic">Kalkulator Dasar</option>
+        <option value="trig">Trigonometri</option>
+        <option value="newton">Hukum Newton</option>
+        <option value="glb">Gerak Lurus Beraturan (GLB)</option>
+        <option value="glbb">Gerak Lurus Berubah Beraturan (GLBB)</option>
+        <option value="energi">Usaha & Energi</option>
+        <option value="momentum">Momentum & Impuls</option>
+      </select>
+
+      <div id="inputFields" style="margin-top:20px;"></div>
+      <button id="calcBtn">Hitung</button>
+      <div class="result" id="result">💡 Hasil akan muncul di sini</div>
+    </div>
+  </main>
+
+  <footer>
+    © 2025 SMA Negeri 2 Bitung — Aplikasi Pembelajaran Fisika Interaktif
+    <span>Disusun oleh Fredynandus Takalamingan</span>
+  </footer>
+
+  <script>
+    const calcType = document.getElementById('calcType');
+    const inputFields = document.getElementById('inputFields');
+    const calcBtn = document.getElementById('calcBtn');
+    const resultEl = document.getElementById('result');
+
+    const forms = {
+      basic: `
+        <label>Masukkan ekspresi matematika (contoh: 5*3+2)</label>
+        <input id="expr" type="text" placeholder="contoh: (10+2)/4">
+      `,
+      trig: `
+        <label>Masukkan sudut (derajat)</label>
+        <input id="angle" type="number" placeholder="0–360">
+        <label>Pilih fungsi</label>
+        <select id="trigFunc">
+          <option value="sin">sin</option>
+          <option value="cos">cos</option>
+          <option value="tan">tan</option>
+        </select>
+      `,
+      newton: `
+        <label>Gaya (N)</label><input id="f" type="number" placeholder="contoh: 20">
+        <label>Massa (kg)</label><input id="m" type="number" placeholder="contoh: 5">
+      `,
+      glb: `
+        <label>Kecepatan (m/s)</label><input id="v" type="number">
+        <label>Waktu (s)</label><input id="t" type="number">
+      `,
+      glbb: `
+        <label>Kecepatan awal (m/s)</label><input id="v0" type="number">
+        <label>Percepatan (m/s²)</label><input id="a" type="number">
+        <label>Waktu (s)</label><input id="t" type="number">
+      `,
+      energi: `
+        <label>Gaya (N)</label><input id="f" type="number">
+        <label>Jarak (m)</label><input id="s" type="number">
+        <label>Massa (kg)</label><input id="m" type="number">
+        <label>Kecepatan (m/s)</label><input id="v" type="number">
+        <label>Ketinggian (m)</label><input id="h" type="number">
+      `,
+      momentum: `
+        <label>Massa (kg)</label><input id="m" type="number">
+        <label>Kecepatan (m/s)</label><input id="v" type="number">
+        <label>Gaya (N)</label><input id="f" type="number">
+        <label>Δt (s)</label><input id="dt" type="number">
+      `
+    };
+
+    inputFields.innerHTML = forms.basic;
+
+    calcType.addEventListener('change', () => {
+      inputFields.innerHTML = forms[calcType.value];
+      resultEl.textContent = "💡 Hasil akan muncul di sini";
+    });
+
+    calcBtn.addEventListener('click', () => {
+      let hasil = "";
+      try {
+        switch(calcType.value){
+          case "basic":
+            hasil = eval(document.getElementById('expr').value);
+            break;
+          case "trig":
+            const deg = parseFloat(document.getElementById('angle').value);
+            const rad = deg * Math.PI / 180;
+            const fn = document.getElementById('trigFunc').value;
+            hasil = `${fn}(${deg}°) = ${Math[fn](rad).toFixed(4)}`;
+            break;
+          case "newton":
+            const f = parseFloat(document.getElementById('f').value);
+            const m = parseFloat(document.getElementById('m').value);
+            hasil = `Percepatan (a) = F/m = ${(f/m).toFixed(2)} m/s²`;
+            break;
+          case "glb":
+            const v = parseFloat(document.getElementById('v').value);
+            const t = parseFloat(document.getElementById('t').value);
+            hasil = `Jarak (s) = v·t = ${(v*t).toFixed(2)} m`;
+            break;
+          case "glbb":
+            const v0 = parseFloat(document.getElementById('v0').value);
+            const a = parseFloat(document.getElementById('a').value);
+            const t2 = parseFloat(document.getElementById('t').value);
+            hasil = `s = v₀t + ½at² = ${(v0*t2 + 0.5*a*t2*t2).toFixed(2)} m`;
+            break;
+          case "energi":
+            const F = parseFloat(document.getElementById('f').value);
+            const s = parseFloat(document.getElementById('s').value);
+            const M = parseFloat(document.getElementById('m').value);
+            const V = parseFloat(document.getElementById('v').value);
+            const H = parseFloat(document.getElementById('h').value);
+            const W = F*s, Ek = 0.5*M*V*V, Ep = M*9.8*H;
+            hasil = `Usaha (W)=${W.toFixed(2)} J, Ek=${Ek.toFixed(2)} J, Ep=${Ep.toFixed(2)} J`;
+            break;
+          case "momentum":
+            const mm = parseFloat(document.getElementById('m').value);
+            const vv = parseFloat(document.getElementById('v').value);
+            const ff = parseFloat(document.getElementById('f').value);
+            const dt = parseFloat(document.getElementById('dt').value);
+            const p = mm*vv, I = ff*dt;
+            hasil = `Momentum (p)=${p.toFixed(2)} Ns, Impuls (I)=${I.toFixed(2)} Ns`;
+            break;
+        }
+        resultEl.textContent = hasil;
+      } catch(e) {
+        resultEl.textContent = "⚠️ Input tidak valid! Mohon isi semua kolom.";
+      }
+    });
+  </script>
+</body>
+</html>
